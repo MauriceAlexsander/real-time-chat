@@ -4,6 +4,7 @@ export default createStore({
   state: {
     client_id: null,
     webSocket: null,
+    chat_log: [],
   },
   mutations: {
     setClientID(state) {
@@ -12,12 +13,11 @@ export default createStore({
     setWebSocket(state) {
       state.webSocket = new WebSocket(`ws://localhost:8000/ws/${state.client_id}`);
       state.webSocket.onmessage = function(event) {
-          var messages = document.getElementById('messages')
-          var message = document.createElement('li')
-          var content = document.createTextNode(event.data)
-          message.appendChild(content)
-          messages.appendChild(message)
+          state.commit("setChatLog", event.data) 
       };
+    },
+    setChatLog(state, message) {
+      state.chat_log.push(message)
     }
   },
   actions: {
@@ -31,6 +31,7 @@ export default createStore({
   getters: {
     getClientID: state => state.client_id,
     getWebSocket: state => state.webSocket,
+    getChatLog: state => state.chat_log,
   },
   modules: {
   }
