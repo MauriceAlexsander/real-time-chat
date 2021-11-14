@@ -34,9 +34,44 @@ export default {
     ID() {
       return this.$store.getters.getClientID
     },
-    WebSocket() {
-      return this.$store.getters.getWebSocket
-    }
-  }
+
+<style scoped>
+.chat {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  color: var(--text-white);
 }
-</script>
+
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--darker-blue);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.messages-box {
+  height: 480px;
+  width: 320px;
+  overflow: auto;
+}
+
+.messages-box::-webkit-scrollbar {
+  -webkit-appearance: none;
+  background-color: black;
+  width: 5px;
+}
+
+.messages-box::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: var(--text-white);
+}
+
+form {
+  margin-top: 12px;
+}
+</style>
