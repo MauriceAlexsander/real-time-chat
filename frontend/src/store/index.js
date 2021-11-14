@@ -3,7 +3,7 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     client_id: null,
-    webSocket: null,
+    websocket: null,
     chat_log: [],
   },
   mutations: {
@@ -11,14 +11,14 @@ export default createStore({
       state.client_id = Date.now()
     },
     setWebSocket(state) {
-      state.webSocket = new WebSocket(`ws://localhost:8000/ws/${state.client_id}`);
-      state.webSocket.onmessage = function(event) {
-          state.commit("setChatLog", event.data) 
+      state.websocket = new WebSocket(`ws://localhost:8000/ws/${state.client_id}`);
+      state.websocket.onmessage = function(event) {
+        state.chat_log.push(event.data)
       };
     },
-    setChatLog(state, message) {
-      state.chat_log.push(message)
-    }
+    sendMessage(state, text) {
+      state.websocket.send(text)
+    },
   },
   actions: {
     setClientID(state) {
@@ -26,12 +26,15 @@ export default createStore({
     },
     setWebSocket(state) {
       state.commit("setWebSocket")
-    }
+    },
+    sendMessage(state, text) {
+      state.commit("sendMessage", text)
+    },
   },
   getters: {
-    getClientID: state => state.client_id,
-    getWebSocket: state => state.webSocket,
-    getChatLog: state => state.chat_log,
+    client_id: state => state.client_id,
+    websocket: state => state.websocket,
+    chat_log: state => state.chat_log,
   },
   modules: {
   }
