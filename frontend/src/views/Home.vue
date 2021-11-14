@@ -1,17 +1,25 @@
 <template>
-  <div>
-    <h1>WebSocket Chat</h1>
-    <h2>Your ID: {{ID}}</h2>
-    <form @submit.prevent="sendMessage()">
-        <input required v-model="message" type="text" id="messageText" autocomplete="off"/>
-        <button type='submit'>Send</button>
-    </form>
-    <ul id='messages'>
-    </ul>
+  <div class="chat">
+    <div class="chat-box">
+      <h1>Global Chat</h1>
+      <h2>Your ID: {{ID}}</h2>
+      <div ref='messages' class="messages-box">
+        <ul style="list-style-type: none; padding-left: 12px; margin: 0;">
+          <Message v-for="message in chat_log" v-bind:key="message.id" v-bind:message="message" />
+        </ul>
+      </div>
+      <form @submit.prevent="send_message()">
+          <input required v-model="text" type="text" id="messageText" autocomplete="off"/>
+          <button type='submit'>Send</button>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
+import Message from "./../components/Message.vue";
+import { mapGetters } from 'vuex'
+
 export default {
   name: "Home",
   beforeRouteEnter(to, from, next){
@@ -21,19 +29,43 @@ export default {
   },
   data() {
     return {
-      message: ""
+      text: ""
     }
+  },
+  components: {
+    Message,
   },
   methods: {
-    sendMessage() {
-      this.WebSocket.send(this.message)
-      this.message = ""
-    }
+    async send_message() {
+      this.$store.dispatch("sendMessage", this.text)
+      this.text = ""
+      this.scroll_to_bottom()
+    },
+    async scroll_to_bottom() {
+      await new Promise(r => setTimeout(r, 10));
+      const messages = this.$refs.messages
+      messages.scrollTop = messages.scrollHeight
+    },
   },
   computed: {
-    ID() {
-      return this.$store.getters.getClientID
+    ...mapGetters({
+      chat_log: 'chat_log',
+      ID: 'client_id',
+    }),
+  },
+  watch: {
+    '$store.state.chat_log': {
+      deep: true,
+      handler() {
+        const messages = this.$refs.messages
+        if (messages.scrollTop + 480 === messages.scrollHeight) {
+          this.scroll_to_bottom();
+        }
+      },
     },
+  },
+}
+</script>
 
 <style scoped>
 .chat {
